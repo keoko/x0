@@ -5,8 +5,7 @@
             [cljs.core.async :refer [put! chan <! timeout]]
             [sablono.core :as html :refer-macros [html]]))
 
-;; TODO: display timing
-;; TODO: end game by timing
+;; TODO: display ok/failed without alerts
 ;; TODO: random ops
 ;; TODO: layout
 ;; TODO: heroku
@@ -16,7 +15,7 @@
 
 (def op-sign "*")
 (def max-ops 5)
-(def max-time 10000) ;; 3 seconds
+(def max-time 10) ;; 10 seconds
 (def ops [[1 2] [3 4] [5 6] [7 8] [1 1]])
 
 
@@ -77,7 +76,7 @@
     om/IInitState
     (init-state [_]
       {:val ""
-       :timer (timeout max-time)})
+       :timer (timeout (* 1000 max-time))})
     om/IWillMount
     (will-mount [_]
       (let [timer (om/get-state owner :timer)]
@@ -85,13 +84,13 @@
           (let [t (<! timer)]
             (print "time is over!")
             (om/transact! app :phase (fn [_] :end)))))
-      #_(go (loop [timer (timeout 1000) time (:remaining-time app)]
+      (go (loop [timer (timeout 1000)]
             (<! timer)
-            (if (<= time 0)
+            (if (<= (:remaining-time @app) 0)
               time
               (do
-                (om/transact! app :remaining-time #(- % 1000))
-                (recur (timeout 1000) (:remaining-time app)))))))
+                (om/transact! app :remaining-time dec)
+                (recur (timeout 1000)))))))
 
     om/IRenderState
     (render-state [_ state]
