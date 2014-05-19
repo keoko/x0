@@ -6,7 +6,6 @@
             [sablono.core :as html :refer-macros [html]]))
 
 ;; TODO: display ok/failed without alerts
-;; TODO: random ops
 ;; TODO: layout
 ;; TODO: heroku
 ;; TODO: different ops: +, -, *, div
@@ -16,7 +15,8 @@
 (def op-sign "*")
 (def max-ops 5)
 (def max-time 10) ;; 10 seconds
-(def ops [[1 2] [3 4] [5 6] [7 8] [1 1]])
+(def ops (repeatedly max-ops #(vector (rand-int 9) (rand-int 9))))
+
 
 
 (defn init-state []
@@ -87,7 +87,7 @@
       (go (loop [timer (timeout 1000)]
             (<! timer)
             (if (<= (:remaining-time @app) 0)
-              time
+              0
               (do
                 (om/transact! app :remaining-time dec)
                 (recur (timeout 1000)))))))
