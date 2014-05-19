@@ -8,23 +8,32 @@
 ;; TODO: display ok/failed without alerts
 ;; TODO: layout
 ;; TODO: heroku
-;; TODO: different ops: +, -, *, div
+;; TODO: build logic dataset (non negative minus, not divided by 0, etc)
 
 (enable-console-print!)
 
-(def op-sign "*")
+
+(declare rand-dataset)
+
+(def operators {"*" * "+" + "-" - "/" quot})
 (def max-ops 5)
-(def max-time 10) ;; 10 seconds
-(def ops (repeatedly max-ops #(vector (rand-int 9) (rand-int 9))))
-
-
+(def max-time 1000) ;; 10 seconds
 
 (defn init-state []
   {:score 0 
-   :ops ops 
+   :ops (rand-dataset)
    :pos 0
    :phase :start
    :remaining-time max-time})
+
+
+(defn rand-dataset []
+  (repeatedly max-ops #(vector (rand-nth (keys operators)) 
+                               (rand-int 9) 
+                               (rand-int 9))))
+
+
+
 
 (def app-state (atom (init-state)))
 
@@ -32,9 +41,9 @@
   (om/set-state! owner :val (.. e -target -value)))
 
 
-(defn check-op [e app x y pos owner]
+(defn check-op [e app op x y pos owner]
   (let [val (js/parseInt (.. e -target -value))]
-    (if (= val (* x y))
+    (if (= val ((get operators op) x y))
       (do 
         (.alert js/window "Molt bé")
         (om/transact! app :pos #(inc %))
@@ -95,16 +104,16 @@
     om/IRenderState
     (render-state [_ state]
       (let [pos (:pos app)
-            [x y] (nth (:ops app) pos)
+            [op x y] (nth (:ops app) pos)
             operator '*]
         (html 
-         [:div x "*" y "="
+         [:div x op y "="
           (om/build score-view app)
           (om/build timer-view app)
           (html/text-field {:value (:val state)
                             :on-change #(handle-change % owner state)
                             :on-key-press  #(when (== (.-keyCode %) 13) 
-                                              (check-op % app x y pos owner))} 
+                                              (check-op % app op x y pos owner))} 
                            :foo)])))))
 
 
