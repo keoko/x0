@@ -5,7 +5,6 @@
             [cljs.core.async :refer [put! chan <! timeout]]
             [sablono.core :as html :refer-macros [html]]))
 
-;; TODO: polish layout
 ;; TODO: heroku
 ;; TODO: check in mobile: firefoxOS, android
 ;; TODO: store score, failed results in web service (how to cache results and save once we recover connection: events)
@@ -24,9 +23,10 @@
 
 (declare rand-dataset)
 
-(def operators {"*" * "+" + "-" - "/" quot})
-(def max-ops 100)
-(def max-time 1000) ;; in seconds
+(def operators {"*" *})
+#_(def operators {"*" * "+" + "-" - "/" quot})
+(def max-ops 10)
+(def max-time 100) ;; in seconds
 
 (defn invalid-ops? [[op x y]]
   (or (and (= "/" op) (= 0 y))
@@ -46,7 +46,7 @@
         (remove invalid-ops? 
                 (repeatedly 
                  #(vector (rand-nth (keys operators)) 
-                          (rand-int 9) 
+                          (rand-int 1) 
                           (rand-int 9))))))
 
 (def app-state (atom (init-state)))
@@ -92,8 +92,7 @@
              [:div.notice-square
               [:div.marq "x0"]
               [:div.control-area
-               [:div (html/submit-button 
-                      {:on-click #(om/transact! app :phase (fn [_] :play))} "start")] ]]]))))
+               [:a.start-new-game {:href "#" :on-click #(om/transact! app :phase (fn [_] :play))} "nou joc"]]]]))))
 
 
 
@@ -153,8 +152,7 @@
              [:div.notice-square
               [:div.marq (str "Punts " (:score app))]
               [:div.control-area
-               [:div (html/submit-button 
-                      {:on-click #(restart-game app)} "new game")]]]]))))
+               [:a.start-new-game {:href "#" :on-click #(restart-game app)} "new game"]]]]))))
 
 
 
