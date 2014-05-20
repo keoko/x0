@@ -5,10 +5,19 @@
             [cljs.core.async :refer [put! chan <! timeout]]
             [sablono.core :as html :refer-macros [html]]))
 
-;; TODO: display ok/failed without alerts
-;; TODO: layout
+;; TODO: polish layout
 ;; TODO: heroku
-;; TODO: build logic dataset (non negative minus, not divided by 0, etc)
+;; TODO: check in mobile: firefoxOS, android
+;; TODO: store score, failed results in web service (how to cache results and save once we recover connection: events)
+;; TODO: options view: number of operations, seconds, operands
+;; TODO: integrate with cordova (what?)
+;; TODO: integrate in android
+;; TODO: integrate in firefoxOS
+
+
+;; TODO: resources directory
+;; TODO: how to display a message for a time period. create a component?
+
 
 (enable-console-print!)
 
@@ -16,8 +25,13 @@
 (declare rand-dataset)
 
 (def operators {"*" * "+" + "-" - "/" quot})
-(def max-ops 5)
-(def max-time 1000) ;; 10 seconds
+(def max-ops 100)
+(def max-time 1000) ;; in seconds
+
+(defn invalid-ops? [[op x y]]
+  (or (and (= "/" op) (= 0 y))
+      (and (some #{op} ["-" "/"]) (< x y))))
+
 
 (defn init-state []
   {:score 0 
@@ -28,12 +42,12 @@
 
 
 (defn rand-dataset []
-  (repeatedly max-ops #(vector (rand-nth (keys operators)) 
-                               (rand-int 9) 
-                               (rand-int 9))))
-
-
-
+  (take max-ops 
+        (remove invalid-ops? 
+                (repeatedly 
+                 #(vector (rand-nth (keys operators)) 
+                          (rand-int 9) 
+                          (rand-int 9))))))
 
 (def app-state (atom (init-state)))
 
@@ -41,16 +55,14 @@
   (om/set-state! owner :val (.. e -target -value)))
 
 
-(defn check-op [e app op x y pos owner]
+(defn check-op [e app owner op x y pos]
   (let [val (js/parseInt (.. e -target -value))]
     (if (= val ((get operators op) x y))
       (do 
-        (.alert js/window "Molt bé")
         (om/transact! app :pos #(inc %))
         (om/transact! app :score #(inc %))
         (om/set-state! owner :val ""))
       (do
-        (.alert js/window (str "Noo .. no passa res, prova amb la següent"))
         (om/transact! app :pos #(inc %))
         (om/set-state! owner :val "")))
     (when (>= (:pos @app) max-ops)
@@ -62,23 +74,28 @@
   (reify
     om/IRender
     (render [_]
-      (html [:div "punts:" (:score app) "/" max-ops]))))
+      (html [:div.heads "Punts " [:span.score-val (:score app) "/" max-ops]]))))
 
 
 (defn timer-view [app owner]
   (reify
     om/IRender
     (render [_]
-      (html [:div "temps:" (:remaining-time app)]))))
+      (html [:div.heads "Temps " [:span.time-val (:remaining-time app)]]))))
 
 
 (defn start-view [app owner]
   (reify
     om/IRender
     (render [_]
-      (html [:h1 "x0 game" 
-             [:div (html/submit-button 
-                    {:on-click #(om/transact! app :phase (fn [_] :play))} "start")]]))))
+      (html [:div.dots-game
+             [:div.notice-square
+              [:div.marq "x0"]
+              [:div.control-area
+               [:div (html/submit-button 
+                      {:on-click #(om/transact! app :phase (fn [_] :play))} "start")] ]]]))))
+
+
 
 (defn play-view [app owner]
   (reify
@@ -107,14 +124,20 @@
             [op x y] (nth (:ops app) pos)
             operator '*]
         (html 
-         [:div x op y "="
-          (om/build score-view app)
-          (om/build timer-view app)
-          (html/text-field {:value (:val state)
-                            :on-change #(handle-change % owner state)
-                            :on-key-press  #(when (== (.-keyCode %) 13) 
-                                              (check-op % app op x y pos owner))} 
-                           :foo)])))))
+         [:div.dots-game
+          [:div.header
+           (om/build score-view app)
+           (om/build timer-view app)]
+          [:div.board-area
+           [:div.chain-line]
+           [:div.fot-highlights]
+           [:div.board
+            [:div.op x op y "="]
+            (html/text-field {:value (:val state)
+                              :on-change #(handle-change % owner state)
+                              :on-key-press  #(when (== (.-keyCode %) 13) 
+                                                (check-op % app owner op x y pos))} 
+                             :op-val)]]])))))
 
 
 (defn restart-game [app]
@@ -126,9 +149,12 @@
   (reify
     om/IRender
     (render [_]
-      (html [:div (str "score: " (:score app))
-             [:div (html/submit-button 
-                    {:on-click #(restart-game app)} "new game")]]))))
+      (html [:div.dots-game
+             [:div.notice-square
+              [:div.marq (str "Punts " (:score app))]
+              [:div.control-area
+               [:div (html/submit-button 
+                      {:on-click #(restart-game app)} "new game")]]]]))))
 
 
 
