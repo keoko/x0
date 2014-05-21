@@ -5,18 +5,17 @@
             [cljs.core.async :refer [put! chan <! timeout]]
             [sablono.core :as html :refer-macros [html]]))
 
-;; TODO: heroku
+;; TODO: heroku: compile to production
 ;; TODO: check in mobile: firefoxOS, android
-;; TODO: store score, failed results in web service (how to cache results and save once we recover connection: events)
+;; TODO: how to display a message for a time period. create a component?
 ;; TODO: options view: number of operations, seconds, operands
+;; TODO: store score, failed results in web service (how to cache results and save once we recover connection: events)
+
 ;; TODO: integrate with cordova (what?)
 ;; TODO: integrate in android
 ;; TODO: integrate in firefoxOS
 
-
-;; TODO: resources directory
-;; TODO: how to display a message for a time period. create a component?
-
+;; TBR: focus is using ref, it's a good practice?
 
 (enable-console-print!)
 
@@ -90,7 +89,7 @@
     (render [_]
       (html [:div.dots-game
              [:div.notice-square
-              [:div.marq "x0"]
+              [:div.marq [:span {:class "yellow"} "x0"]]
               [:div.control-area
                [:a.start-new-game {:href "#" :on-click #(om/transact! app :phase (fn [_] :play))} "nou joc"]]]]))))
 
@@ -116,6 +115,10 @@
               (do
                 (om/transact! app :remaining-time dec)
                 (recur (timeout 1000)))))))
+    om/IDidMount
+    (did-mount [_]
+      (let [node (om/get-node owner "op-field")]
+        (.focus node)))
 
     om/IRenderState
     (render-state [_ state]
@@ -132,7 +135,8 @@
            [:div.fot-highlights]
            [:div.board
             [:div.op x op y "="]
-            (html/text-field {:value (:val state)
+            (html/text-field {:ref "op-field"
+                              :value (:val state)
                               :on-change #(handle-change % owner state)
                               :on-key-press  #(when (== (.-keyCode %) 13) 
                                                 (check-op % app owner op x y pos))} 
