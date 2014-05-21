@@ -8,13 +8,14 @@
 ;; TODO: heroku: compile to production
 ;; TODO: check in mobile: firefoxOS, android
 ;; TODO: how to display a message for a time period. create a component?
-;; TODO: options view: number of operations, seconds, operands
+;; TODO: top ten scores: three letters, score (time?)
 ;; TODO: store score, failed results in web service (how to cache results and save once we recover connection: events)
 
 ;; TODO: integrate with cordova (what?)
 ;; TODO: integrate in android
 ;; TODO: integrate in firefoxOS
 
+;; TODO: options view: number of operations, seconds, operands
 ;; TBR: focus is using ref, it's a good practice?
 
 (enable-console-print!)
@@ -91,7 +92,7 @@
              [:div.notice-square
               [:div.marq [:span {:class "yellow"} "x0"]]
               [:div.control-area
-               [:a.start-new-game {:href "#" :on-click #(om/transact! app :phase (fn [_] :play))} "nou joc"]]]]))))
+               [:a.start-new-game {:href "#" :on-click #(om/transact! app :phase (fn [_] :play))} "nous joc"]]]]))))
 
 
 
@@ -188,6 +189,22 @@
         :start (om/build start-view app)
         :end (om/build end-view app)
         (om/build error-view app {:opts {:init-state {:msg (str "phase unknown:" (:phase app))}}})))))
+
+
+
+
+(defn get-top-ten []
+  (for [i (range 1 11)]
+    {:user (.getItem js/localStorage (str i "user"))
+     :score (.getItem js/localStorage (str i "score"))}))
+
+
+#_(defn save-top-ten [tt]
+  (for [i (count tt)]
+    ()))
+
+
+
 
 
 (om/root
