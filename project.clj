@@ -20,6 +20,8 @@
 
   :uberjar-name "x0-standalone.jar"
 
+  :main x0.core
+
   :cljsbuild { 
     :builds [{:id "x0"
               :source-paths ["src/cljs"]
