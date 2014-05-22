@@ -47,7 +47,7 @@
         (remove invalid-ops? 
                 (repeatedly 
                  #(vector (rand-nth (keys operators)) 
-                          (rand-int 1) 
+                          (rand-int 9) 
                           (rand-int 9))))))
 
 (def app-state (atom (init-state)))
