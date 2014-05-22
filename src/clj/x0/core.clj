@@ -20,6 +20,6 @@
   (jetty/run-jetty application {:port port
                                :join? false}))
 
-(defn -main []
-  (let [port (Integer. (or (System/getenv "PORT") "8080"))]
-    (start port)))
+(defn -main [port]
+  (let [p (Integer. (or port "8080"))]
+    (start p)))
