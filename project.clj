@@ -22,19 +22,20 @@
 
   :main x0.core
 
-  :cljsbuild { 
-    :builds [{:id "x0"
-              :source-paths ["src/cljs"]
-              :compiler {
-                         :output-to "resources/public/js/x0.js"
-                         :output-dir "resources/public/js/out"
-                         :optimizations :none
-                         :source-map true}}
-             {:id "release"
-              :source-paths ["src"]
-              :compiler {
-                         :output-to "resources/public/js/x0.js"
-                         :optimizations :advanced
-                         :pretty-print false
-                         :preamble ["react/react.min.js"]
-                         :externs ["react/externs/react.js"]}}]})
+
+  :cljsbuild {
+              :builds [{:id "x0"
+                        :source-paths ["src/cljs"]
+                        :compiler {
+                                   :output-to "resources/public/js/x0.js"
+                                   :output-dir "resources/public/js/out"
+                                   :optimizations :none
+                                   :source-map true}}
+                       {:id "release"
+                        :source-paths ["src/cljs"]
+                        :compiler {
+                                   :output-to "resources/public/js/x0.js"
+                                   :optimizations :advanced
+                                   :pretty-print false
+                                   :preamble ["react/react.min.js"]
+                                   :externs ["react/externs/react.js"]}}]})

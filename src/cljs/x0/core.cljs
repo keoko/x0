@@ -93,7 +93,7 @@
              [:div.notice-square
               [:div.marq [:span {:class "yellow"} "x0"]]
               [:div.control-area
-               [:a.start-new-game {:href "#" :on-click #(om/transact! app :phase (fn [_] :play))} "nous joc"]]]]))))
+               [:a.start-new-game {:href "#" :on-click #(om/transact! app :phase (fn [_] :play))} "nou joc"]]]]))))
 
 
 
