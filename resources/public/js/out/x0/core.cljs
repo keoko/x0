@@ -6,6 +6,7 @@
             [sablono.core :as html :refer-macros [html]]))
 
 ;; TODO: heroku: compile to production
+;; TODO: set production compilation
 ;; TODO: check in mobile: firefoxOS, android
 ;; TODO: how to display a message for a time period. create a component?
 ;; TODO: top ten scores: three letters, score (time?)
@@ -13,7 +14,7 @@
 
 ;; TODO: integrate with cordova (what?)
 ;; TODO: integrate in android
-;; TODO: integrate in firefoxOS
+;; TODO: integrate in firefoxOS  
 
 ;; TODO: options view: number of operations, seconds, operands
 ;; TBR: focus is using ref, it's a good practice?
